@@ -42,6 +42,7 @@ export default function Home() {
 					setSpeedKMH(vkmh.toFixed(0) + " km/h");
 				} else {
 					setSpeed("non déterminé");
+					setSpeedKMH("");
 				}
 				const altit = pos.coords.altitude;
 				if (altit) {
