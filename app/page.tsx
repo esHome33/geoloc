@@ -9,6 +9,7 @@ export default function Home() {
 	const [alt, setAlt] = useState<string>("non déterminé");
 	const [accuracy, setAccuracy] = useState<string>("non déterminé");
 	const [speed, setSpeed] = useState<string>("non déterminé");
+	const [speedKMH, setSpeedKMH] = useState<string>("non déterminé");
 	const [erreur, setErreur] = useState<string>("");
 
 	const [geoServices, setGeoServices] = useState(
@@ -37,12 +38,14 @@ export default function Home() {
 				const vitesse = pos.coords.speed;
 				if (vitesse) {
 					setSpeed(vitesse + " m/s");
+					const vkmh = vitesse * 3.6;
+					setSpeedKMH(vkmh.toFixed(0) + " km/h");
 				} else {
 					setSpeed("non déterminé");
 				}
 				const altit = pos.coords.altitude;
 				if (altit) {
-					setAlt(altit + " m");
+					setAlt(altit.toFixed(0) + " m");
 				} else {
 					setAlt("non déterminé");
 				}
@@ -79,7 +82,7 @@ export default function Home() {
 				<Typography className="text-blue-600">Altitude = {alt}</Typography>
 				<Typography>précision = {accuracy}</Typography>
 				<Typography className="text-green-500">
-					Vitesse = {speed} m/s
+					Vitesse = {speed} m/s = {speedKMH} km/h
 				</Typography>
 				<Typography className="mt-4">{erreur}</Typography>
 			</div>
