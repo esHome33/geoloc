@@ -83,7 +83,7 @@ export default function Home() {
 				<Typography className="text-blue-600">Altitude = {alt}</Typography>
 				<Typography>précision = {accuracy}</Typography>
 				<Typography className="text-green-500">
-					Vitesse = {speed} m/s = {speedKMH} km/h
+					Vitesse = {speed}{speedKMH === "" ? "": " = "+speedKMH}
 				</Typography>
 				<Typography className="mt-4">{erreur}</Typography>
 			</div>
