@@ -39,7 +39,7 @@ const fetcher: (
 	latitude: any,
 	longitude: any,
 	calcul: boolean
-) => Promise<Retour|undefined> = async (
+) => Promise<Retour | undefined> = async (
 	_url: string,
 	latitude: any,
 	longitude: any,
@@ -84,17 +84,18 @@ const fetcher: (
 };
 
 export default function Home() {
-	const [lat, setLat] = useState<number | "non déterminé">("non déterminé");
-	const [lon, setLon] = useState<number | "non déterminé">("non déterminé");
+	const ND = "non déterminé";
+	const [lat, setLat] = useState<number | "non déterminé">(ND);
+	const [lon, setLon] = useState<number | "non déterminé">(ND);
 	const [alt, setAlt] = useState<string>("non déterminé");
-	const [accuracy, setAccuracy] = useState<string>("non déterminé");
-	const [speed, setSpeed] = useState<string>("non déterminé");
-	const [speedKMH, setSpeedKMH] = useState<string>("non déterminé");
+	const [accuracy, setAccuracy] = useState<string>(ND);
+	const [speed, setSpeed] = useState<string>(ND);
+	const [speedKMH, setSpeedKMH] = useState<string>(ND);
 	const [erreur, setErreur] = useState<string>("");
 
 	const [adresses, setAdresses] = useState<boolean>(true);
 
-	const { data, error, isLoading } = useSWR(
+	const { data, isLoading } = useSWR(
 		"https://api-adresse.data.gouv.fr/reverse/",
 		(url) => fetcher(url, lat, lon, adresses)
 	);
@@ -128,14 +129,14 @@ export default function Home() {
 					const vkmh = vitesse * 3.6;
 					setSpeedKMH(vkmh.toFixed(0) + " km/h");
 				} else {
-					setSpeed("non déterminé");
+					setSpeed(ND);
 					setSpeedKMH("");
 				}
 				const altit = pos.coords.altitude;
 				if (altit) {
 					setAlt(altit.toFixed(0) + " m");
 				} else {
-					setAlt("non déterminé");
+					setAlt(ND);
 				}
 				setErreur("");
 			};
@@ -209,11 +210,11 @@ export default function Home() {
 				<Typography>précision = {accuracy}</Typography>
 				<Typography className="text-green-500">
 					Vitesse = {speed}
-					{speedKMH === "" ? "" : " = " + speedKMH}
+					{speedKMH === "" || speedKMH === ND ? null : " = " + speedKMH}
 				</Typography>
 				<Typography className="mt-4">{erreur}</Typography>
 				<Typography>
-					Adresse {data?.features[0].properties.street}
+					Adresse : {data?.features[0].properties.street}
 				</Typography>
 			</div>
 			<div className="text-center">
