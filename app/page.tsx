@@ -132,16 +132,16 @@ export default function Home() {
 					const vkmh = vitesse * 3.6;
 					setSpeedKMH(vkmh.toFixed(0) + " km/h");
 				} else {
-					setSpeed(ND);
+					setSpeed(ND + "e");
 					setSpeedKMH("");
 				}
 				const altit = pos.coords.altitude;
 				if (altit) {
 					setAlt(altit.toFixed(0) + " m");
 				} else {
-					setAlt(ND);
+					setAlt(ND + "e");
 				}
-				setErreur("");
+				setErreur("ERREUR");
 			};
 
 			const onErr = () => {
@@ -164,14 +164,18 @@ export default function Home() {
 				clearInterval(timer);
 			};
 		}
-	}, [,adresses]);
+	}, [, adresses]);
 
 	if (isLoading) {
 		return (
 			<main className="flex min-h-screen flex-col items-center justify-between p-2">
-				<div className="flex flex-col space-y-2 mb-20">
-					<Typography className="text-orange-600">
-						Les données sont en cours de chargement
+				<div className="flex flex-col space-y-2 mt-56 mb-20">
+					<Typography
+						className="text-orange-600 font-bold"
+						variant="h5"
+						fontStyle={"italic"}
+					>
+						Données en cours de chargement ...
 					</Typography>
 				</div>
 			</main>
@@ -221,7 +225,12 @@ export default function Home() {
 					Vitesse = {speed}
 					{speedKMH === "" || speedKMH === ND ? null : " = " + speedKMH}
 				</Typography>
-				<Typography className="mt-4">{erreur}</Typography>
+				<Typography
+					className="mt-4 text-red-700 font-bold"
+					variant="h6"
+				>
+					{erreur}
+				</Typography>
 				<Typography>
 					Adresse : {data?.features[0].properties.street}
 				</Typography>
