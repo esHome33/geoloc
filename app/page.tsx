@@ -51,11 +51,11 @@ const fetcher: (
 		return undefined;
 	}
 
-	console.log("calcul", calcul);
 	if (!calcul) {
-		console.log("use adresses is at false");
+		console.log("user requested not to calcul");
 		return undefined;
 	}
+	console.log("calcul", calcul);
 
 	if (typeof latitude === "number" && typeof longitude === "number") {
 		console.log("axios fetch to retrieve adress");
@@ -151,9 +151,11 @@ export default function Home() {
 			//console.log("watch position launched !");
 
 			const timer = setInterval(() => {
-				geoloc.getCurrentPosition(onSuccess, onErr, {
-					maximumAge: 0,
-				});
+				if (adresses) {
+					geoloc.getCurrentPosition(onSuccess, onErr, {
+						maximumAge: 0,
+					});
+				}
 			}, 1500);
 
 			return () => {
@@ -162,7 +164,7 @@ export default function Home() {
 				clearInterval(timer);
 			};
 		}
-	}, []);
+	}, [,adresses]);
 
 	if (isLoading) {
 		return (
@@ -209,7 +211,7 @@ export default function Home() {
 							}}
 						/>
 					}
-					label="Adresse"
+					label="cherche coordonnées"
 				/>
 				<Typography>Latitude = {lat}</Typography>
 				<Typography>Longitude = {lon}</Typography>
