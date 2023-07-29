@@ -147,7 +147,7 @@ export default function Home() {
 
 			console.log("watch position launched !");
 			const id_watch = geoloc.watchPosition(onSuccess, onErr, {
-				maximumAge: 300,
+				maximumAge: 0,
 			});
 
 			return () => {
