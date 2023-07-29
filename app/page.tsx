@@ -92,6 +92,7 @@ export default function Home() {
 	const [speed, setSpeed] = useState<string>(ND);
 	const [speedKMH, setSpeedKMH] = useState<string>(ND);
 	const [erreur, setErreur] = useState<string>("");
+	const [dateDatas, setDateDatas] = useState<Date>();
 
 	const [adresses, setAdresses] = useState<boolean>(true);
 
@@ -119,6 +120,8 @@ export default function Home() {
 			const geoloc = navigator.geolocation;
 
 			const onSuccess = (pos: GeolocationPosition) => {
+				const maintenant = new Date();
+				setDateDatas(maintenant);
 				setLat(pos.coords.latitude);
 				setLon(pos.coords.longitude);
 				const acc = pos.coords.accuracy.toFixed() + " m";
@@ -145,14 +148,18 @@ export default function Home() {
 				setErreur("une erreur de géolocalisation est survenue");
 			};
 
-			console.log("watch position launched !");
-			const id_watch = geoloc.watchPosition(onSuccess, onErr, {
-				maximumAge: 0,
-			});
+			//console.log("watch position launched !");
+
+			const timer = setInterval(() => {
+				geoloc.getCurrentPosition(onSuccess, onErr, {
+					maximumAge: 0,
+				});
+			}, 1500);
 
 			return () => {
-				console.log("No more watching position....");
-				geoloc.clearWatch(id_watch);
+				//console.log("No more watching position....");
+				//geoloc.clearWatch(id_watch);
+				clearInterval(timer);
 			};
 		}
 	}, []);
@@ -215,6 +222,9 @@ export default function Home() {
 				<Typography className="mt-4">{erreur}</Typography>
 				<Typography>
 					Adresse : {data?.features[0].properties.street}
+				</Typography>
+				<Typography variant="body2">
+					âge des données : {dateDatas?.toLocaleTimeString()}
 				</Typography>
 			</div>
 			<div className="text-center">
