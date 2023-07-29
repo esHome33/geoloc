@@ -141,7 +141,7 @@ export default function Home() {
 				} else {
 					setAlt(ND + "e");
 				}
-				setErreur("ERREUR");
+				setErreur("");
 			};
 
 			const onErr = () => {
