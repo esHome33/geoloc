@@ -92,6 +92,8 @@ const fetcher: (
 
 export default function Home() {
 	const ND = "non déterminé";
+	const decocher = "Décocher pour pause";
+	const cocher = "Recherche position";
 	const [lat, setLat] = useState<number | "non déterminé">(ND);
 	const [lon, setLon] = useState<number | "non déterminé">(ND);
 	const [alt, setAlt] = useState<string>("non déterminé");
@@ -107,6 +109,7 @@ export default function Home() {
 	const [textPopover, setTextPopover] = useState<string>("");
 	const [open, setOpen] = useState<boolean>(false);
 	const [btnText, setBtnText] = useState<string>("Adresse");
+	const [cbLabel, setCbLabel] = useState<string>(decocher);
 	/*const { data, isLoading } = useSWR(
 		"https://api-adresse.data.gouv.fr/reverse/",
 		(url) => fetcher(url, lat, lon, adresses)
@@ -209,12 +212,12 @@ export default function Home() {
 	) : (
 		<>
 			<main className="flex min-h-screen flex-col items-center justify-between p-2">
-				<div className="flex flex-col space-y-2 mb-20">
+				<div className="flex flex-col space-y-2 mb-5">
 					<Typography
 						variant="h4"
 						className="text-amber-600"
 					>
-						Géolocation
+						Géo🌱localisation
 					</Typography>
 					<Typography
 						variant="body2"
@@ -233,13 +236,15 @@ export default function Home() {
 									const val = e.target.value;
 									if (val === "false") {
 										setAdresses(true);
+										setCbLabel(decocher);
 									} else {
 										setAdresses(false);
+										setCbLabel(cocher);
 									}
 								}}
 							/>
 						}
-						label="cherche coordonnées"
+						label={cbLabel}
 					/>
 					<Typography>Latitude = {lat}</Typography>
 					<Typography>Longitude = {lon}</Typography>
@@ -280,7 +285,9 @@ export default function Home() {
 					</Typography>
 				</div>
 				<div className="text-center">
-					<Typography variant="body2">ESHome 33 - juillet 2023</Typography>
+					<Typography sx={{ fontSize: "11px" }}>
+						ESHome 33 - juillet 2023
+					</Typography>
 				</div>
 			</main>
 		</>
