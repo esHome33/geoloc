@@ -1,9 +1,15 @@
 "use client";
 
-import { Checkbox, FormControlLabel, Typography } from "@mui/material";
+import Loading from "@/components/loading";
+import {
+	Button,
+	Checkbox,
+	FormControlLabel,
+	Popover,
+	Typography,
+} from "@mui/material";
 import axios from "axios";
 import { ChangeEvent, useEffect, useState } from "react";
-import useSWR from "swr";
 
 type Retour = {
 	type: string;
@@ -45,7 +51,7 @@ const fetcher: (
 	longitude: any,
 	calcul: boolean
 ) => {
-	console.log("début de fetcher");
+	//console.log("début de fetcher");
 	if (!latitude && !longitude) {
 		console.log("no lat and lon in params");
 		return undefined;
@@ -55,10 +61,10 @@ const fetcher: (
 		console.log("user requested not to calcul");
 		return undefined;
 	}
-	console.log("calcul", calcul);
+	//console.log("calcul", calcul);
 
 	if (typeof latitude === "number" && typeof longitude === "number") {
-		console.log("axios fetch to retrieve adress");
+		//console.log("axios fetch to retrieve adress");
 		const rep = await axios.get<Retour>(
 			"https://api-adresse.data.gouv.fr/reverse/",
 			{
@@ -72,9 +78,10 @@ const fetcher: (
 
 		if (rep.data) {
 			const d = rep.data;
-			console.log("axios response OK with data : " + JSON.stringify(d));
+			//console.log("axios response OK with data : " + JSON.stringify(d));
 			return d;
 		} else {
+			console.log("no data returned by axios get");
 			return undefined;
 		}
 	} else {
@@ -95,11 +102,15 @@ export default function Home() {
 	const [dateDatas, setDateDatas] = useState<Date>();
 
 	const [adresses, setAdresses] = useState<boolean>(true);
-
-	const { data, isLoading } = useSWR(
+	const [isLoading, setIsLoading] = useState<boolean>(true);
+	const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>();
+	const [textPopover, setTextPopover] = useState<string>("");
+	const [open, setOpen] = useState<boolean>(false);
+	const [btnText, setBtnText] = useState<string>("Adresse");
+	/*const { data, isLoading } = useSWR(
 		"https://api-adresse.data.gouv.fr/reverse/",
 		(url) => fetcher(url, lat, lon, adresses)
-	);
+	);*/
 
 	const [geoServices, setGeoServices] = useState(
 		"Services de géolocalisation non disponibles"
@@ -114,6 +125,32 @@ export default function Home() {
 			return false;
 		}
 	};
+
+	const handleClick = async (event: React.MouseEvent<HTMLButtonElement>) => {
+		setAnchorEl(event.currentTarget);
+		const ret = await fetcher(
+			"https://api-adresse.data.gouv.fr/reverse/",
+			lat,
+			lon,
+			true
+		);
+		if (ret) {
+			setTextPopover(ret?.features[0].properties.label);
+			setOpen(true);
+			setBtnText("Fermer");
+		} else {
+			setOpen(false);
+			setTextPopover("Pas de réponse pour l'adresse");
+			setBtnText("Adresse");
+		}
+	};
+
+	const handleClose = () => {
+		setOpen(false);
+		setBtnText("Adresse");
+	};
+
+	const id = open ? "simple-popover" : undefined;
 
 	useEffect(() => {
 		if (getGeolocService()) {
@@ -142,6 +179,7 @@ export default function Home() {
 					setAlt(ND + "e");
 				}
 				setErreur("");
+				setIsLoading(false);
 			};
 
 			const onErr = () => {
@@ -166,81 +204,85 @@ export default function Home() {
 		}
 	}, [, adresses]);
 
-	if (isLoading) {
-		return (
+	return isLoading ? (
+		<Loading />
+	) : (
+		<>
 			<main className="flex min-h-screen flex-col items-center justify-between p-2">
-				<div className="flex flex-col space-y-2 mt-56 mb-20">
+				<div className="flex flex-col space-y-2 mb-20">
 					<Typography
-						className="text-orange-600 font-bold"
-						variant="h5"
-						fontStyle={"italic"}
+						variant="h4"
+						className="text-amber-600"
 					>
-						Données en cours de chargement ...
+						Géolocation
+					</Typography>
+					<Typography
+						variant="body2"
+						className="italic"
+					>
+						{geoServices}
+					</Typography>
+					<FormControlLabel
+						control={
+							<Checkbox
+								checked={adresses}
+								className="bg-green-800  hover:bg-green-500 mr-3"
+								value={adresses}
+								onChange={(e: ChangeEvent<HTMLInputElement>) => {
+									e.preventDefault();
+									const val = e.target.value;
+									if (val === "false") {
+										setAdresses(true);
+									} else {
+										setAdresses(false);
+									}
+								}}
+							/>
+						}
+						label="cherche coordonnées"
+					/>
+					<Typography>Latitude = {lat}</Typography>
+					<Typography>Longitude = {lon}</Typography>
+					<Typography className="text-blue-600">
+						Altitude = {alt}
+					</Typography>
+					<Typography>précision = {accuracy}</Typography>
+					<Typography className="text-green-500">
+						Vitesse = {speed}
+						{speedKMH === "" || speedKMH === ND ? null : " = " + speedKMH}
+					</Typography>
+					<Typography
+						className="mt-4 text-red-700 font-bold"
+						variant="h6"
+					>
+						{erreur}
+					</Typography>
+					<Button
+						className="bg-slate-300  hover:bg-slate-100 text-orange-600 font-extrabold"
+						onClick={handleClick}
+					>
+						{btnText}
+					</Button>
+					<Popover
+						id={id}
+						open={open}
+						anchorEl={anchorEl}
+						onClose={handleClose}
+						anchorOrigin={{
+							vertical: "bottom",
+							horizontal: "left",
+						}}
+					>
+						<Typography sx={{ p: 2 }}>{textPopover}</Typography>
+					</Popover>
+					<Typography variant="body2">
+						âge des données : {dateDatas?.toLocaleTimeString()}
 					</Typography>
 				</div>
+				<div className="text-center">
+					<Typography variant="body2">ESHome 33 - juillet 2023</Typography>
+				</div>
 			</main>
-		);
-	}
-
-	return (
-		<main className="flex min-h-screen flex-col items-center justify-between p-2">
-			<div className="flex flex-col space-y-2 mb-20">
-				<Typography
-					variant="h4"
-					className="text-amber-600"
-				>
-					Géolocation
-				</Typography>
-				<Typography
-					variant="body2"
-					className="italic"
-				>
-					{geoServices}
-				</Typography>
-
-				<FormControlLabel
-					control={
-						<Checkbox
-							checked={adresses}
-							className="bg-green-800  hover:bg-green-500 mr-3"
-							value={adresses}
-							onChange={(e: ChangeEvent<HTMLInputElement>) => {
-								e.preventDefault();
-								const val = e.target.value;
-								if (val === "false") {
-									setAdresses(true);
-								} else {
-									setAdresses(false);
-								}
-							}}
-						/>
-					}
-					label="cherche coordonnées"
-				/>
-				<Typography>Latitude = {lat}</Typography>
-				<Typography>Longitude = {lon}</Typography>
-				<Typography className="text-blue-600">Altitude = {alt}</Typography>
-				<Typography>précision = {accuracy}</Typography>
-				<Typography className="text-green-500">
-					Vitesse = {speed}
-					{speedKMH === "" || speedKMH === ND ? null : " = " + speedKMH}
-				</Typography>
-				<Typography
-					className="mt-4 text-red-700 font-bold"
-					variant="h6"
-				>
-					{erreur}
-				</Typography>
-				<Typography>
-					Adresse : {data?.features[0].properties.street}
-				</Typography>
-				<Typography variant="body2">
-					âge des données : {dateDatas?.toLocaleTimeString()}
-				</Typography>
-			</div>
-			<div className="text-center">
-				<Typography variant="body2">ESHome 33 - juillet 2023</Typography>
-			</div>
-		</main>
+		</>
 	);
 }
